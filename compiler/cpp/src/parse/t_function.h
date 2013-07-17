@@ -41,6 +41,9 @@ class t_function : public t_doc {
     name_(name),
     arglist_(arglist),
     oneway_(oneway) {
+   // resource leak 
+   // In constructor Allocating memory by calling "new t_struct(NULL)". 
+   // but the destructor and whatever functions it calls do not free it.    
     xceptions_ = new t_struct(NULL);
     if (oneway_ && (! returntype_->is_void())) {
       pwarning(1, "Oneway methods should return void.\n");
@@ -66,7 +69,17 @@ class t_function : public t_doc {
     }
   }
 
-  ~t_function() {}
+  ~t_function() {
+      // In constructor Allocating memory by calling "new t_struct(NULL)". 
+     // but the destructor and whatever functions it calls do not free it. 
+     // To resolve the issue 
+     if(xceptions_)
+     {
+      delete xceptions_; 
+      xceptions_ = NULL;
+     }
+     
+  }
 
   t_type* get_returntype() const {
     return returntype_;
